@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Video player</title>
+    <link rel="stylesheet" type="text/css" href="bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    <div class="wrapper">
+        <div id="src-form" class="panel panel-default">
+            <div class="panel-body">
+                <div class="form-group">
+                    <h4>Open video url</h4>
+                    <input id="src-input" class="form-control" type="url" placeholder="http://...">
+                </div>
+                <div class="form-group">
+                    <button id="src-btn" class="btn btn-danger">Get video</button>
+                </div>
+            </div>
+        </div>
+
+        <video id="video-player" style="display: none;"></video>
+    </div>
+
+<script type="text/javascript" src="app.js"></script>
+</body>
+</html>

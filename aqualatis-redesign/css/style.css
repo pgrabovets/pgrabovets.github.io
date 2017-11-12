@@ -1,0 +1,59 @@
+body {
+    
+}
+
+/*HEADER*/
+header {
+    padding: 14px 0px;
+}
+
+.hearder-content {
+    display: flex;
+}
+
+.vertical-align {
+    margin: auto;
+}
+
+.header-logo img {
+    width: 180px;
+}
+
+/*CONTENT*/
+.slider {
+    margin-bottom: 20px;
+}
+
+.btn-call{
+    width: 100%;
+    text-align: center;
+}
+
+.brands {
+    padding-bottom: 40px;
+}
+
+.brands img {
+    display: block;
+    width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+/*FOOTER*/
+footer {
+    padding: 20px 0px;
+    min-height: 140px;
+    background-color: #f8f8f8;
+    border-top: 1px solid #e7e7e7;
+}
+
+footer .line div {
+    border-left: 1px solid #e0e0e0;
+    height: 120px;
+    color: #555;
+}
+
+footer .line div:last-child {
+    border-right: 1px solid #e0e0e0;
+}
