@@ -7,17 +7,45 @@ header {
     padding: 14px 0px;
 }
 
-.hearder-content {
-    display: flex;
-}
-
-.vertical-align {
-    margin: auto;
-}
-
-.header-logo img {
+.header-logo {
     width: 180px;
 }
+
+.top-nav {
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.top-nav a {
+    margin-right: 10px;
+}
+
+.top-nav a:last-child {
+    margin-right: 0;
+}
+
+.top-search {
+    height: 58px;
+    display: flex;
+    align-items: center;
+}
+
+.top-brand {
+    height: 58px;
+}
+
+.navbar-collapse {
+    padding-left: 0;
+    padding-top: 0;
+}
+
+.navbar-padding {
+    padding-left: 15px;
+    padding-top: 15px;
+}
+
 
 /*CONTENT*/
 .slider {
@@ -46,14 +74,4 @@ footer {
     min-height: 140px;
     background-color: #f8f8f8;
     border-top: 1px solid #e7e7e7;
-}
-
-footer .line div {
-    border-left: 1px solid #e0e0e0;
-    height: 120px;
-    color: #555;
-}
-
-footer .line div:last-child {
-    border-right: 1px solid #e0e0e0;
 }

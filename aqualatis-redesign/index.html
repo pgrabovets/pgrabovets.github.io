@@ -12,48 +12,63 @@
 <body>
 	<div class="container">
 		<header>
-			<div class="row hearder-content">
-				<div class="col-md-3 header-logo">
-					<img src="img/aqualatis.png">
+			<div class="row">
+				<div class="col-md-3 col-xs-6">
+					<div class="top-brand">
+						<img class="header-logo" src="img/aqualatis.png">
+					</div>
 				</div>
-				<div class="col-md-4 vertical-align">
-					<div class="input-group">
+				<div class="col-md-5 hidden-xs hidden-sm">
+					<div class="input-group top-search">
 						<input type="text" class="form-control" placeholder="Search for...">
 						<span class="input-group-btn">
-							<button class="btn btn-default" type="button">Найти</button>
+							<button class="btn btn-default" type="button">
+								 <span class="glyphicon glyphicon-search"></span>
+							</button>
 						</span>
-					</div><!-- /input-group -->
+					</div>
 				</div>
-				<div class="col-md-5 vertical-align">
-					<a href="#" class="btn btn-default pull-right"> <span class="glyphicon glyphicon-shopping-cart"></span> Корзина </a>
-					<a href="#" class="btn btn-link pull-right"> Личный кабинет </a>
-					<a href="#" class="btn btn-link pull-right"> Регистрация </a>
-					<a href="#" class="btn btn-link pull-right"> Вход </a>
+				<div class="col-md-4 col-xs-6">
+					<div class="top-nav">
+						<a href="#" class="btn btn-default">
+							<span class="glyphicon glyphicon-user"></span>
+						</a>
+						<a href="#" class="btn btn-default"> <span class="glyphicon glyphicon-shopping-cart"></span> Корзина </a>
+					</div>
 				</div>
 			</div>
 		</header>
-
-		<div class="row">
-			<div class="col-md-12">
-				<nav class="navbar navbar-default">
-					<div class="container-fluid">
-						<div class="navbar-header">
-							<a class="navbar-brand" href="#">AquaLatis.com.ua</a>
-						</div>
-						<ul class="nav navbar-nav">
-						  <li><a href="#">О магазине</a></li>
-						  <li><a href="#">Доставка</a></li>
-						  <li><a href="#">Скидки</a></li>
-						  <li><a href="#">Оплата</a></li>
-						  <li><a href="#">Гарантия</a></li>
-						  <li><a href="#">Контакты</a></li> 
-						</ul>
-					</div>
-				</nav>
-			</div>
-		</div>
+	</div>
 
 
+	<nav class="navbar navbar-default">
+	  <div class="container">
+	    <!-- Brand and toggle get grouped for better mobile display -->
+	    <div class="navbar-header">
+	      <button class="navbar-toggle collapsed" id="collapse-btn">
+	        <span class="sr-only">Toggle navigation</span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	        <span class="icon-bar"></span>
+	      </button>
+	    </div>
+
+	    <!-- Collect the nav links, forms, and other content for toggling -->
+	    <div class="collapse navbar-collapse" id="collapse-menu">
+	      <ul class="nav navbar-nav">
+	        <li class="active"><a href="#">Главная <span class="sr-only">(current)</span></a></li>
+	        <li><a href="#">Доставка</a></li>
+	        <li><a href="#">Гарантия</a></li>
+	        <li><a href="#">Оплата</a></li>
+	        <li><a href="#">Контакты</a></li>
+	        <li><a href="#">О магазине</a></li>
+	      </ul>
+	    </div><!-- /.navbar-collapse -->
+	  </div><!-- /.container-fluid -->
+	</nav>
+
+
+	<div class="container">
 		<!-- MAIN -->
 		<div class="row">
 
@@ -222,10 +237,9 @@
 
 	<footer>
 		<div class="container">
-			<div class="row line">
+			<div class="row">
 				<div class="col-md-3">
-					<p>Интернет магазин <br> AquaLatis.com.ua </p>
-					<p>Наш адрес: <br> ул. Горького 41 <br> 14000 Чернигов Украина </p>
+					<p>Интернет магазин aqualatis.com.ua </p>
 				</div>
 				<div class="col-md-3">
 					<p>тел./факс: +38 (0462) 72-41-21 </p>
@@ -234,14 +248,23 @@
 					<p>МТС (050) 31-777-01</p>
 				</div>
 				<div class="col-md-3">
-					<p>Время работы:</p>
-					<p>Понедельник - Воскресенье <br> 10:00 - 18:30 </p>
+					<p>Время работы: <br> Понедельник - Воскресенье <br> 10:00 - 18:30 </p>
 				</div>
 				<div class="col-md-3">
-					<p>Copyright © 2007 - 2015</p>
+					<p>Наш адрес: <br> ул. Горького 41 <br> 14000 Чернигов Украина </p>
 				</div>
 			</div>
 		</div>
 	</footer>
+
+<script type="text/javascript">
+	/* Toggle main menu */
+	var collapseMenu = document.getElementById('collapse-menu');
+	var collapseBtn = document.getElementById('collapse-btn');
+	collapseBtn.addEventListener('click', e => {
+		collapseMenu.classList.toggle('collapse');
+		collapseMenu.classList.toggle('navbar-padding');
+	});
+</script>
 </body>
 </html>
