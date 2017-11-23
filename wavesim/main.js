@@ -75,9 +75,9 @@ const canvas = new Canvas('thecanvas', width, height);
 
 const oscillationParam = [
 	{amplitude: 10, period: 110, phase: 2},
-	{amplitude: 24, period: 68, phase: 0},
-	{amplitude: 3, period: 38, phase: 3.14},
-	{amplitude: 1, period: 20, phase: 0},
+	{amplitude: 14, period: 68, phase: 0},
+	{amplitude: 4, period: 36, phase: 3.14},
+	{amplitude: 1, period: 18, phase: 0},
 ]
 
 const waveConfig = {
