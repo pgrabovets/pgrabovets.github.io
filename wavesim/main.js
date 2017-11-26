@@ -12,14 +12,14 @@ class Canvas {
     drawWave(wave, x, y) {
     	const ctx = this.ctx;
     	ctx.strokeStyle = wave.color;
-		ctx.lineWidth = 2;
-		ctx.beginPath();
-		wave.points.forEach(point => {
-			ctx.lineTo(x + point.x, y + point.y);
-			ctx.moveTo(x + point.x, y + point.y);
-		});
-		ctx.closePath();
-		ctx.stroke();
+	ctx.lineWidth = 2;
+	ctx.beginPath();
+	wave.points.forEach(point => {
+		ctx.lineTo(x + point.x, y + point.y);
+		ctx.moveTo(x + point.x, y + point.y);
+	});
+	ctx.closePath();
+	ctx.stroke();
     }
 
     clear() {
