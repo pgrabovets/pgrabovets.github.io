@@ -9,6 +9,19 @@ class Canvas {
         this.el.height = this.height;
     }
 
+    drawWave(wave, x, y) {
+    	const ctx = this.ctx;
+    	ctx.strokeStyle = wave.color;
+		ctx.lineWidth = 2;
+		ctx.beginPath();
+		wave.points.forEach(point => {
+			ctx.lineTo(x + point.x, y + point.y);
+			ctx.moveTo(x + point.x, y + point.y);
+		});
+		ctx.closePath();
+		ctx.stroke();
+    }
+
     clear() {
         this.ctx.clearRect(0, 0, this.width, this.height);
     }
@@ -26,6 +39,7 @@ class Wave {
 		this.oscilParam = oscilParam;
 		this.dx = waveConfig.dx;
 		this.dp = waveConfig.dp;
+		this.color = waveConfig.color;
 		this.phase = 0;
 		this.minWidth = waveConfig.minWidth;
 		this.maxWidth = waveConfig.maxWidth;
@@ -55,18 +69,6 @@ class Wave {
 			return new Point(x, sumY);
 		});
 	}
-
-	draw(canvas, x, y, color) {
-		canvas.ctx.strokeStyle = color;
-		canvas.ctx.lineWidth = 2;
-		canvas.ctx.beginPath();
-		this.points.forEach(point => {
-			canvas.ctx.lineTo(x + point.x, y + point.y);
-			canvas.ctx.moveTo(x + point.x, y + point.y);
-		});
-		canvas.ctx.closePath();
-		canvas.ctx.stroke();
-	}
 }
 
 const width = window.innerWidth;
@@ -74,7 +76,7 @@ const height = window.innerHeight;
 const canvas = new Canvas('thecanvas', width, height);
 
 const oscillationParam = [
-	{amplitude: 10, period: 110, phase: 2},
+	{amplitude: 12, period: 110, phase: 2},
 	{amplitude: 14, period: 68, phase: 0},
 	{amplitude: 4, period: 36, phase: 3.14},
 	{amplitude: 1, period: 18, phase: 0},
@@ -84,11 +86,12 @@ const waveConfig = {
 	dx: 8,
 	dp: 0.04,
 	maxWidth: width,
-	minWidth: 0
+	minWidth: 0,
+	color: '#FFF'
 }
 
 const wave = new Wave(oscillationParam, waveConfig);
-wave.draw(canvas, 0, height/2, '#fff');
+canvas.drawWave(wave, 0, height/2);
 
 const fps = 30;
 const msPerFrame = 1000 / fps;
@@ -97,9 +100,9 @@ function animate() {
 	setTimeout(() => {
 	    requestAnimationFrame(animate.bind(this));
 
-	    canvas.clear();
 		wave.update();
-		wave.draw(canvas, 0, height/2, '#fff');
+		canvas.clear();
+		canvas.drawWave(wave, 0, height/2);
 
 	}, msPerFrame);
 }
