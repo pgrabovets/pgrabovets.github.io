@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css">
         body {
-            background-color: #FAFAFA;
+            background-color: #F7F7F7;
             margin: 0;
             padding: 0;
             position: absolute;
@@ -17,45 +17,12 @@
             justify-content: center;
             align-items: center;
         }
-        #gameContainer {
-            
-        }
-
-        .touch-control {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-wrap: wrap;
-        }
-
-        .touch-up {
-            width: 100%;
-        }
-        .touch-left {
-            width: 50%;
-        }
-        .touch-right {
-            width: 50%;
-        }
-        .touch-down {
-            width: 100%;
-        }
-
     </style>
 </head>
 <body>
-    <div id="gameContainer"></div>
-    <div class="touch-control">
-        <div class="touch-up" id="up"></div>
-        <div class="touch-left" id="left"></div>
-        <div class="touch-right" id="right"></div>
-        <div class="touch-down" id="down"></div>
-    </div>
-
+    <div id="game-container"></div>
+    
     <script type="text/javascript" src="js/pixi.min.js"></script>
-    <script type="text/javascript" src="build/bundle.js"></script>
+    <script type="text/javascript" src="bundle.js"></script>
 </body>
 </html>
