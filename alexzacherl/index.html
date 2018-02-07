@@ -56,51 +56,10 @@ I'm running <a href="#">Fairytale Distillery</a> where we are currently working 
         </div>
     </div>
 
-    <div id="games" class="content-section">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <h2>Games</h2>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-4 col-sm-6">
-                    <div class="youtube-video">
-                        <iframe src="https://www.youtube.com/embed/CjJQIeKwSMA" frameborder="0" allowfullscreen></iframe>
-                    </div>
-                    <div class="video-title">
-                        <h4>The Exiled</h4>
-                        <p>since 2013</p>
-                    </div>
-                </div>
-                <div class="col-md-4 col-sm-6">
-                    <div class="youtube-video">
-                        <iframe src="https://www.youtube.com/embed/CQtMPMdnvXA" frameborder="0" allowfullscreen></iframe>
-                    </div>
-                    <div class="video-title">
-                        <h4>Astroslugs</h4>
-                        <p>2009-2011</p>
-                    </div>
-                </div>
-
-                <div class="col-md-4 col-sm-6">
-                    <div class="youtube-video">
-                        <iframe src="https://www.youtube.com/embed/_1fSCpAwc3M" frameborder="0" allowfullscreen></iframe>
-                    </div>
-                    <div class="video-title">
-                        <h4>San Juan</h4>
-                        <p>2012</p>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
     <div class="container">
         <div class="row">
             <div class="col-md-12">
-                <h2 id="games-control" class="custom-link">Show experimental games</h2>
+                <h2 id="games">Games</h2>
             </div>
         </div>
     </div>
@@ -703,18 +662,10 @@ I'm running <a href="#">Fairytale Distillery</a> where we are currently working 
             </div>
         </div>
     </footer>
-
-<script src='js/responsive_iframe.js'></script>   
-<script src='js/collapse.js'></script>
+  
 <script src='js/smooth-scroll.js'></script>
 <script>
     smoothScroll.init();
-    var collapseBlock = new Collapser('collapse-block', true, 400);
-    var gamesControl = document.getElementById('games-control');
-    gamesControl.onclick = function(e) {
-        e.preventDefault();
-        collapseBlock.toggle();
-    };
 </script>
 </body>
 </html>
