@@ -60,205 +60,11 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* unused harmony export checkCollision */
-/* harmony export (immutable) */ __webpack_exports__["a"] = clamp;
-/**
- * @param {rectangle} rect1
- * @param {rectangle} rect2
- * @return {boolean} result collision
- */
-function checkCollision(rect1, rect2) {
-  let collided = false;
-
-  if (rect1.x < rect2.x + rect2.width &&
-    rect1.x + rect1.width > rect2.x &&
-    rect1.y < rect2.y + rect2.height &&
-    rect1.y + rect1.height > rect2.y) {
-    collided = true;
-  };
-
-  return collided;
-}
-
-
-/**
- * @param {number} value
- * @param {number} min value
- * @param {number} max value
- * @return {number} clamped value
- */
-function clamp(val, min, max) {
-  let clamped = val;
-  if (val < min) {
-    clamped = min;
-  } else if (val > max) {
-    clamped = max;
-  }
-  return clamped;
-}
-
-
-/***/ }),
-/* 1 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Game__ = __webpack_require__(2);
-
-
-const DEFAULT_WIDTH = 512;
-const DEFAULT_HEIGHT = 512;
-
-const containerEl = document.getElementById('game-container');
-const clientWidth = document.body.clientWidth;
-const clientHeight = document.body.clientHeight;
-
-let width = DEFAULT_WIDTH;
-let height = DEFAULT_HEIGHT;
-
-if (clientWidth < DEFAULT_WIDTH) {
-  width = clientWidth;
-} 
-
-if (clientHeight < DEFAULT_HEIGHT) {
-  height = clientHeight;
-}
-
-const game = new __WEBPACK_IMPORTED_MODULE_0__Game__["a" /* default */](width, height);
-containerEl.appendChild(game.view);
-
-containerEl.style.width = width + 'px';
-containerEl.style.height = height + 'px';
-
-
-/***/ }),
-/* 2 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Tilemap__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Camera__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Input__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Player__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__utils__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__Physics__ = __webpack_require__(8);
-
-
-
-
-
-
-
-
-class Game extends PIXI.Application {
-  constructor(width, height) {
-    super({
-      width: width,
-      height: height,
-      backgroundColor : 0xC9DDA0,
-    });
-    this.game = this;
-    this.camera =new __WEBPACK_IMPORTED_MODULE_1__Camera__["a" /* default */](this.game);
-    this.input = new __WEBPACK_IMPORTED_MODULE_2__Input__["a" /* default */]();
-    this.tilemap = null;
-    this.physics = new __WEBPACK_IMPORTED_MODULE_5__Physics__["a" /* default */](this.game);
-    this.update = this.update.bind(this);
-
-    this.preload();
-  }
-
-  preload() {
-    this.loader.add('submarine', 'assets/submarine_x2.png');
-    this.loader.add('map', 'assets/map_32x32.json');
-    this.loader.add('tileset', 'assets/tileset_x2.png');
-
-    this.loader.load((loader, resources) => {
-      this.init();
-    });
-  }
-
-  init() {
-    this.tilemap = new __WEBPACK_IMPORTED_MODULE_0__Tilemap__["a" /* default */](this.game, 'map', 'tileset');
-    this.tilemap.addLayerToStage('background');
-    this.tilemap.addLayerToStage('collision');
-    this.tilemap.addLayerToStage('coins');
-
-    this.camera.setBounds(0, 0, 512, 512);
-
-    this.player = new __WEBPACK_IMPORTED_MODULE_3__Player__["a" /* default */](this.game, 'submarine');
-    this.player.setPosition(20, 56);
-    this.player.setBounds(0, 56, 512, 456);
-
-    this.stage.addChild(this.player.sprite);
-    this.camera.follow(this.player.sprite);
-
-    //Register a handler for tick events
-    this.ticker.add(this.update);
-  }
-
-  update() {
-    const key = this.input.key;
-
-    //save player position
-    const playerPosX = this.player.x;
-    const playerPosY = this.player.y;
-
-    if (key.left.isDown) {
-      this.player.moveLeft();
-    } else if (key.right.isDown) {
-      this.player.moveRight();
-    }
-
-    this.physics.collidePlayerToLayer(
-      this.player, 
-      this.tilemap.layers['collision'],
-      () => {
-        this.player.x = playerPosX;
-        this.player.y = playerPosY;
-      }
-    );
-
-    if (key.up.isDown) {
-      this.player.moveUp();
-    } else if (key.down.isDown) {
-      this.player.moveDown();
-    }
-
-    this.physics.collidePlayerToLayer(
-      this.player, 
-      this.tilemap.layers['collision'],
-      () => {
-        this.player.y = playerPosY;
-      }
-    );
-
-    this.physics.collidePlayerToLayer(
-      this.player,
-      this.tilemap.layers['coins'],
-      (coin) => {
-        this.tilemap.layers['coins'].removeChild(coin);
-      }
-    );
-
-    this.camera.update();
-    this.player.update();
-  }
-
-}
-
-/* harmony default export */ __webpack_exports__["a"] = (Game);
-
-/***/ }),
-/* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -267,7 +73,6 @@ class Tilemap {
     this.game = game;
     this.mapName = mapName;
     this.tilesetName = tilesetName;
-    this.tilemap = this;
 
     // tiled editor data
     this.data = this.game.loader.resources[this.mapName].data;
@@ -344,11 +149,436 @@ class Tilemap {
 /* harmony default export */ __webpack_exports__["a"] = (Tilemap);
 
 /***/ }),
+/* 1 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* unused harmony export checkCollision */
+/* harmony export (immutable) */ __webpack_exports__["a"] = clamp;
+/**
+ * @param {rectangle} rect1
+ * @param {rectangle} rect2
+ * @return {boolean} result collision
+ */
+function checkCollision(rect1, rect2) {
+  let collided = false;
+
+  if (rect1.x < rect2.x + rect2.width &&
+    rect1.x + rect1.width > rect2.x &&
+    rect1.y < rect2.y + rect2.height &&
+    rect1.y + rect1.height > rect2.y) {
+    collided = true;
+  };
+
+  return collided;
+}
+
+
+/**
+ * @param {number} value
+ * @param {number} min value
+ * @param {number} max value
+ * @return {number} clamped value
+ */
+function clamp(val, min, max) {
+  let clamped = val;
+  if (val < min) {
+    clamped = min;
+  } else if (val > max) {
+    clamped = max;
+  }
+  return clamped;
+}
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Game__ = __webpack_require__(3);
+
+
+const DEFAULT_WIDTH = 512;
+const DEFAULT_HEIGHT = 512;
+
+const containerEl = document.getElementById('game-container');
+
+let width = DEFAULT_WIDTH;
+let height = DEFAULT_HEIGHT;
+
+const game = new __WEBPACK_IMPORTED_MODULE_0__Game__["a" /* default */](width, height);
+containerEl.appendChild(game.view);
+
+containerEl.style.width = width + 'px';
+containerEl.style.height = height + 'px';
+
+
+/***/ }),
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Input__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__StateManager__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__PlayState__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__GameOverState__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__GameWaitState__ = __webpack_require__(13);
+
+
+
+
+
+
+
+class Game extends PIXI.Application {
+  constructor(width, height) {
+    super({
+      width: width,
+      height: height,
+      backgroundColor : 0xC9DDA0,
+    });
+    this.game = this;
+    this.input = new __WEBPACK_IMPORTED_MODULE_0__Input__["a" /* default */]();
+    this.stateManager = new __WEBPACK_IMPORTED_MODULE_1__StateManager__["a" /* default */](this.game);
+
+    this.update = this.update.bind(this);
+    this.preload();
+  }
+
+  preload() {
+    this.loader.add('submarine', 'assets/submarine_x2.png');
+    this.loader.add('gameover', 'assets/gameover_x2.png');
+    this.loader.add('gamewait', 'assets/gamewait_x2.png');
+    this.loader.add('mine', 'assets/mine_x2.png');
+
+    this.loader.add('map1', 'assets/map1.json');
+    this.loader.add('map2', 'assets/map2.json');
+    
+    this.loader.add('tileset', 'assets/tileset_x2.png');
+
+    this.loader.add('level1', 'assets/level1.json');
+    this.loader.add('level2', 'assets/level2.json');
+
+    this.loader.load((loader, resources) => {
+      this.init();
+    });
+  }
+
+  init() {
+    //Register a handler for tick events
+    this.ticker.add(this.update);
+    
+    this.stateManager.add('play', new __WEBPACK_IMPORTED_MODULE_2__PlayState__["a" /* default */](this.game));
+    this.stateManager.add('gameover', new __WEBPACK_IMPORTED_MODULE_3__GameOverState__["a" /* default */](this.game));
+    this.stateManager.add('gamewait', new __WEBPACK_IMPORTED_MODULE_4__GameWaitState__["a" /* default */](this.game));
+    this.stateManager.start('gamewait');
+  }
+
+  update() {
+    this.stateManager.current.update();
+  }
+
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (Game);
+
+/***/ }),
 /* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Key__ = __webpack_require__(5);
+
+
+const keycodes = {
+  LEFT: 37, // arrow left
+  RIGHT: 39, // arrow right
+  UP: 38, // arrow up
+  DOWN: 40, // arrow down
+  ENTER: 13
+}
+
+class Input {
+  constructor() {
+    this.key = {
+      left: new __WEBPACK_IMPORTED_MODULE_0__Key__["a" /* default */](keycodes.LEFT),
+      right: new __WEBPACK_IMPORTED_MODULE_0__Key__["a" /* default */](keycodes.RIGHT),
+      up: new __WEBPACK_IMPORTED_MODULE_0__Key__["a" /* default */](keycodes.UP),
+      down: new __WEBPACK_IMPORTED_MODULE_0__Key__["a" /* default */](keycodes.DOWN),
+      enter: new __WEBPACK_IMPORTED_MODULE_0__Key__["a" /* default */](keycodes.ENTER)
+    }
+  }
+
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (Input);
+
+/***/ }),
+/* 5 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+class Key {
+  constructor(code) {
+    this.code = code;
+    this.isDown = false;
+    this.isUp = true;
+    this.press = null;
+    this.release = null;
+
+    document.addEventListener('keydown', this.handleKeyDown.bind(this));
+    document.addEventListener('keyup', this.handleKeyUp.bind(this));  
+  }
+
+  handleKeyDown(e) {
+    e.preventDefault();
+    if (this.code == e.keyCode) {
+      if (this.isUp && this.press) {
+        this.press();
+      }
+
+      this.isDown = true;
+      this.isUp = false;
+    }
+  }
+
+  handleKeyUp(e) {
+    e.preventDefault();
+    if (this.code == e.keyCode) {
+      if (this.isDown && this.release) {
+        this.release();
+      }
+
+      this.isDown = false;
+      this.isUp = true;
+    }
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (Key);
+
+/***/ }),
+/* 6 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+class StateManager {
+  constructor(game) {
+    this.game = game;
+    this.current = null;
+    this.states = {};
+  }
+
+  add(key, state) {
+    this.states[key] = state;
+  }
+
+  remove(key) {
+    delete this.states[key];
+  }
+
+  start(key) {
+    this.current = this.states[key];
+    this.current.init();
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (StateManager);
+
+/***/ }),
+/* 7 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Tilemap__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Camera__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Physics__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Player__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__entity_Mine__ = __webpack_require__(11);
+
+
+
+
+
+
+
+class PlayState {
+  constructor(game) {
+    this.game = game;
+    this.camera = new __WEBPACK_IMPORTED_MODULE_1__Camera__["a" /* default */](this.game);
+    this.camera.setBounds(0, 0, 512, 512);
+    this.physics = new __WEBPACK_IMPORTED_MODULE_2__Physics__["a" /* default */](this.game);
+    this.tilemap = null;
+    this.player = null;
+    this.entity = null;
+    this.level = 'level1';
+    this.levelData = null;
+
+    this.crashed = false;
+  }
+
+  init() {
+    this.levelData = this.getLevelData(this.level);
+    this.crashed = false;
+    this.entity = [];
+    this.createTilemap();
+    this.createMines();
+    this.createPlayer();
+  }
+
+  getLevelData(levelName) {
+    const loader = this.game.loader;
+    const data = loader.resources[levelName].data;
+    return data;
+  }
+
+  createPlayer() {
+    const player = this.levelData.entity.player;
+
+    this.player = new __WEBPACK_IMPORTED_MODULE_3__Player__["a" /* default */](this.game, 'submarine');
+    this.player.setPosition(player.x, player.y);
+    this.player.setBounds(
+      player.bounds.x, 
+      player.bounds.y, 
+      player.bounds.width, 
+      player.bounds.height
+    );
+    this.game.stage.addChild(this.player.sprite);
+    this.camera.follow(this.player.sprite);
+  }
+
+  createTilemap() {
+    const mapName = this.levelData.map.name;
+    const tilesetName = this.levelData.map.tileset;
+    this.tilemap = new __WEBPACK_IMPORTED_MODULE_0__Tilemap__["a" /* default */](this.game, mapName, tilesetName);
+
+    this.tilemap.data.layers.forEach((layer) => {
+      if (layer.visible == true) {
+        this.tilemap.addLayerToStage(layer.name);
+      }
+    });
+  }
+
+  createMines() {
+    // create mines
+    this.levelData.entity.mines.forEach((item) => {
+      const mine = new __WEBPACK_IMPORTED_MODULE_4__entity_Mine__["a" /* default */](this.game, item.name);
+      mine.setPosition(item.x, item.y);
+      mine.setBounds(
+        item.bounds.x, 
+        item.bounds.y, 
+        item.bounds.width, 
+        item.bounds.height
+      );
+      mine.direction.x = item.direction.x;
+      mine.direction.y = item.direction.y;
+
+      mine.vel.x = item.vel.x;
+      mine.vel.y = item.vel.y;
+      mine.moving = item.moving;
+
+      this.entity.push(mine);
+    });
+
+    //add all entuty to the game stage
+    this.entity.forEach((item) => {
+      this.game.stage.addChild(item.sprite);
+    });
+
+  }
+
+  nextLevel() {
+    if (this.levelData.next_level) {
+      this.level = this.levelData.next_level;
+      this.game.stage.destroy();
+      this.game.stage = new PIXI.Container();
+      this.init();
+    }
+  }
+
+  gameOver() {
+    this.crashed = true;
+    this.game.stateManager.start('gameover');
+  }
+
+  update() {
+    const key = this.game.input.key;
+
+    //save player position
+    const playerPosX = this.player.x;
+    const playerPosY = this.player.y;
+
+    if (key.left.isDown) {
+      this.player.moveLeft();
+    } else if (key.right.isDown) {
+      this.player.moveRight();
+    }
+
+    this.physics.collidePlayerToLayer(
+      this.player, 
+      this.tilemap.layers['collision'],
+      () => {
+        this.player.x = playerPosX;
+        this.player.y = playerPosY;
+      }
+    );
+
+    if (key.up.isDown) {
+      this.player.moveUp();
+    } else if (key.down.isDown) {
+      this.player.moveDown();
+    }
+
+    this.physics.collidePlayerToLayer(
+      this.player, 
+      this.tilemap.layers['collision'],
+      () => {
+        this.player.y = playerPosY;
+      }
+    );
+
+    this.physics.collidePlayerToLayer(
+      this.player,
+      this.tilemap.layers['coins'],
+      (coin) => {
+        this.tilemap.layers['coins'].removeChild(coin);
+        const coins = this.tilemap.layers['coins'].children;
+        if (coins.length == 0) {
+          this.nextLevel();
+        }
+      }
+    );
+
+    this.physics.collidePlayerToArray(
+      this.player, 
+      this.entity, 
+      (entity) => {
+        this.gameOver();
+      }
+    );
+
+    if (!this.crashed) {
+      this.camera.update();
+      this.player.update();
+
+      this.entity.forEach((item) => {
+        item.update();
+      });
+    }
+
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (PlayState);
+
+/***/ }),
+/* 8 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils__ = __webpack_require__(1);
 
 
 class Camera {
@@ -404,182 +634,7 @@ class Camera {
 /* harmony default export */ __webpack_exports__["a"] = (Camera);
 
 /***/ }),
-/* 5 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Key__ = __webpack_require__(6);
-
-
-const keycodes = {
-  LEFT: 37, // arrow left
-  RIGHT: 39, // arrow right
-  UP: 38, // arrow up
-  DOWN:40 // arrow down
-}
-
-class Input {
-  constructor() {
-    this.key = {
-      left: new __WEBPACK_IMPORTED_MODULE_0__Key__["a" /* default */](keycodes.LEFT),
-      right: new __WEBPACK_IMPORTED_MODULE_0__Key__["a" /* default */](keycodes.RIGHT),
-      up: new __WEBPACK_IMPORTED_MODULE_0__Key__["a" /* default */](keycodes.UP),
-      down: new __WEBPACK_IMPORTED_MODULE_0__Key__["a" /* default */](keycodes.DOWN)
-    }
-  }
-
-}
-
-/* harmony default export */ __webpack_exports__["a"] = (Input);
-
-/***/ }),
-/* 6 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-class Key {
-  constructor(code) {
-    this.code = code;
-    this.isDown = false;
-    this.isUp = true;
-    this.press = null;
-    this.release = null;
-
-    document.addEventListener('keydown', this.handleKeyDown.bind(this));
-    document.addEventListener('keyup', this.handleKeyUp.bind(this));  
-  }
-
-  handleKeyDown(e) {
-    e.preventDefault();
-    if (this.code == e.keyCode) {
-      if (this.isUp && this.press) {
-        this.press();
-      }
-
-      this.isDown = true;
-      this.isUp = false;
-    }
-  }
-
-  handleKeyUp(e) {
-    e.preventDefault();
-    if (this.code == e.keyCode) {
-      if (this.isDown && this.release) {
-        this.release();
-      }
-
-      this.isDown = false;
-      this.isUp = true;
-    }
-  }
-}
-
-/* harmony default export */ __webpack_exports__["a"] = (Key);
-
-/***/ }),
-/* 7 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils__ = __webpack_require__(0);
-
-
-
-class Player {
-  constructor(game, imageName) {
-    this.game = game;
-    this.baseTexture = this.game.loader.resources[imageName].texture;
-
-    this.x = 0;
-    this.y = 0;
-    this.width = 32;
-    this.height = 22;
-
-    this.bounds = null;
-
-    //source frames
-    this.frames = [
-      new PIXI.Rectangle(0, 0, 32, 22),
-      new PIXI.Rectangle(34, 0, 32, 22)
-    ];
-
-    this.textures = [
-      new PIXI.Texture(this.baseTexture, this.frames[0]),
-      new PIXI.Texture(this.baseTexture, this.frames[1])
-    ]
-
-    this.frame = 0;
-    this.sprite = new PIXI.Sprite(this.textures[this.frame]);
-
-    this.collisionRectangles = {
-      LEFT_SIDE: [
-        new PIXI.Rectangle (0, 4, 26, 18),
-        new PIXI.Rectangle (26, 8, 6, 10),
-        new PIXI.Rectangle (10, 0, 6, 4)
-      ],
-      RIGHT_SIDE: [
-        new PIXI.Rectangle (6, 4, 26, 18),
-        new PIXI.Rectangle (0, 8, 6, 10),
-        new PIXI.Rectangle (16, 0, 6, 4)
-      ]
-    }
-
-    this.vel = 1.6;
-
-    this.body = this.collisionRectangles.RIGHT_SIDE;
-
-    this.status = null;
-  }
-
-  setPosition(x, y) {
-    this.x = x;
-    this.y = y;
-  }
-
-  setBounds(x, y, width, height) {
-    this.bounds = new PIXI.Rectangle(x, y, width, height);
-  }
-
-  moveLeft() {
-    this.x -= this.vel;
-    this.frame = 1;
-    this.body = this.collisionRectangles.LEFT_SIDE;
-  }
-
-  moveRight() {
-    this.x += this.vel;
-    this.frame = 0;
-    this.body = this.collisionRectangles.RIGHT_SIDE;
-  }
-
-  moveUp() {
-    this.y -= this.vel;
-  }
-
-  moveDown() {
-    this.y += this.vel;
-  }
-
-  update() {
-    if (this.bounds !== null) {
-      const minX = this.bounds.x;
-      const minY = this.bounds.y;
-      const maxX = this.bounds.x + this.bounds.width - this.width;
-      const maxY = this.bounds.y + this.bounds.height - this.height;
-      this.x = Object(__WEBPACK_IMPORTED_MODULE_0__utils__["a" /* clamp */])(this.x, minX, maxX);
-      this.y = Object(__WEBPACK_IMPORTED_MODULE_0__utils__["a" /* clamp */])(this.y, minY, maxY);
-    }
-
-    this.sprite.texture = this.textures[this.frame];
-    this.sprite.x = this.x;
-    this.sprite.y = this.y;
-  }
-}
-
-/* harmony default export */ __webpack_exports__["a"] = (Player);
-
-/***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -622,6 +677,34 @@ class Physics {
   }
 
   /**
+   * @param {player obj} rectArray1
+   * @param {Array} entityArray
+   * @param {function} callback
+   */
+  collidePlayerToArray(player, entityArray, callback) {
+    player.body.forEach(playerRectangle => {
+      entityArray.forEach(entity => {
+        const rect1 = new PIXI.Rectangle(
+          player.x + playerRectangle.x,
+          player.y + playerRectangle.y,
+          playerRectangle.width,
+          playerRectangle.height
+        );
+        const rect2 = new PIXI.Rectangle(
+          entity.x + entity.body.x,
+          entity.y + entity.body.y,
+          entity.body.width,
+          entity.body.height
+        );
+
+        if (this.checkCollision(rect1, rect2)) {
+          callback(entity);
+        };
+      });
+    })
+  }
+
+  /**
    * @param {player obj} player
    * @param {layer container} layer
    * @param {function} callback
@@ -650,6 +733,264 @@ class Physics {
 }
 
 /* harmony default export */ __webpack_exports__["a"] = (Physics);
+
+/***/ }),
+/* 10 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__utils__ = __webpack_require__(1);
+
+
+
+class Player {
+  constructor(game, imageName) {
+    this.game = game;
+    this.baseTexture = this.game.loader.resources[imageName].texture;
+
+    this.x = 0;
+    this.y = 0;
+    this.width = 32;
+    this.height = 22;
+
+    this.bounds = null;
+
+    //source frames
+    this.frames = [
+      new PIXI.Rectangle(0, 0, 32, 22),
+      new PIXI.Rectangle(34, 0, 32, 22)
+    ];
+
+    this.textures = [
+      new PIXI.Texture(this.baseTexture, this.frames[0]),
+      new PIXI.Texture(this.baseTexture, this.frames[1])
+    ]
+
+    this.frame = 0;
+    this.sprite = new PIXI.Sprite(this.textures[this.frame]);
+
+    this.vel = 2;
+
+    this.body = [
+      new PIXI.Rectangle(0, 4, 32, 18),
+      new PIXI.Rectangle(10, 0, 12, 4)
+    ];
+
+    this.status = null;
+  }
+
+  setPosition(x, y) {
+    this.x = x;
+    this.y = y;
+    this.sprite.x = x;
+    this.sprite.y = y;
+  }
+
+  setBounds(x, y, width, height) {
+    this.bounds = new PIXI.Rectangle(x, y, width, height);
+  }
+
+  moveLeft() {
+    this.x -= this.vel;
+    this.frame = 1;
+  }
+
+  moveRight() {
+    this.x += this.vel;
+    this.frame = 0;
+  }
+
+  moveUp() {
+    this.y -= this.vel;
+  }
+
+  moveDown() {
+    this.y += this.vel;
+  }
+
+  update() {
+    if (this.bounds !== null) {
+      const minX = this.bounds.x;
+      const minY = this.bounds.y;
+      const maxX = this.bounds.x + this.bounds.width - this.width;
+      const maxY = this.bounds.y + this.bounds.height - this.height;
+      this.x = Object(__WEBPACK_IMPORTED_MODULE_0__utils__["a" /* clamp */])(this.x, minX, maxX);
+      this.y = Object(__WEBPACK_IMPORTED_MODULE_0__utils__["a" /* clamp */])(this.y, minY, maxY);
+    }
+
+    this.sprite.texture = this.textures[this.frame];
+    this.sprite.x = this.x;
+    this.sprite.y = this.y;
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (Player);
+
+/***/ }),
+/* 11 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+class Mine {
+  constructor(game, imageName) {
+    this.game = game;
+    this.baseTexture = this.game.loader.resources[imageName].texture;
+    this.sprite = new PIXI.Sprite(this.baseTexture);
+    this.x = 0;
+    this.y = 0;
+    this.width = 16;
+    this.height = 16;
+    this.moving = false;
+    this.bounds = null;
+    this.direction = new PIXI.Point(0, 0);
+    this.vel = new PIXI.Point(1, 0);
+    this.body = new PIXI.Rectangle(2, 2, 12, 12);
+  }
+
+  setBounds(x, y, width, height) {
+    this.bounds = new PIXI.Rectangle(x, y, width, height);
+  }
+
+  setPosition(x, y) {
+    this.x = x;
+    this.y = y;
+    this.sprite.x = x;
+    this.sprite.y = y;
+  }
+
+  update() {
+    if (this.moving) {
+      if (this.bounds !== null) {
+        const minX = this.bounds.x;
+        const minY = this.bounds.y;
+        const maxX = this.bounds.x + this.bounds.width - this.width;
+        const maxY = this.bounds.y + this.bounds.height - this.height;
+
+        if (this.x <= minX) {
+          this.direction.x = 1;
+        } else if (this.x >= maxX) {
+          this.direction.x = -1;
+        }
+
+        if (this.y <= minY) {
+          this.direction.y = 1;
+        } else if (this.y >= maxY) {
+          this.direction.y = -1;
+        }
+      }
+
+      this.x += this.vel.x * this.direction.x;
+      this.y += this.vel.y * this.direction.y;
+      this.sprite.x = this.x;
+      this.sprite.y = this.y;
+    }
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (Mine);
+
+/***/ }),
+/* 12 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+class GameOverState {
+  constructor(game) {
+    this.game = game;
+    this.texture = this.game.loader.resources['gameover'].texture;
+    this.gameover = new PIXI.Sprite(this.texture);
+  }
+
+  init() {
+    const halfScreenWidth = this.game.screen.width / 2;
+    const halfScreenHeight = this.game.screen.height / 2;
+    const halfTextureWidht = this.texture.width / 2;
+    const halfTextureHeight = this.texture.height / 2;
+    this.gameover.x = halfScreenWidth - halfTextureWidht;
+    this.gameover.y = halfScreenHeight - halfTextureHeight;
+    this.game.stage.addChild(this.gameover);
+  }
+
+  update() {
+    const key = this.game.input.key;
+
+    if (key.enter.isDown) {
+      this.game.stage.destroy();
+      this.game.stage = new PIXI.Container();
+      this.game.stateManager.start('play');
+    }
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (GameOverState);
+
+/***/ }),
+/* 13 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Tilemap__ = __webpack_require__(0);
+
+
+
+class GameWaitState {
+  constructor(game) {
+    this.game = game;
+    this.texture = this.game.loader.resources['gamewait'].texture;
+    this.sprite = new PIXI.Sprite(this.texture);
+    this.tilemap = null;
+    this.level = 'level1';
+    this.levelData = null;
+  }
+
+  init() {
+    this.levelData = this.getLevelData(this.level);
+    this.createTilemap();
+    this.createText();
+  }
+
+  getLevelData(levelName) {
+    const loader = this.game.loader;
+    const data = loader.resources[levelName].data;
+    return data;
+  }
+
+  createTilemap() {
+    const mapName = this.levelData.map.name;
+    const tilesetName = this.levelData.map.tileset;
+    this.tilemap = new __WEBPACK_IMPORTED_MODULE_0__Tilemap__["a" /* default */](this.game, mapName, tilesetName);
+
+    this.tilemap.data.layers.forEach((layer) => {
+      if (layer.visible == true) {
+        this.tilemap.addLayerToStage(layer.name);
+      }
+    });
+  }
+
+  createText() {
+    const halfScreenWidth = this.game.screen.width / 2;
+    const halfScreenHeight = this.game.screen.height / 2;
+    const halfTextureWidht = this.texture.width / 2;
+    const halfTextureHeight = this.texture.height / 2;
+
+    this.sprite.x = halfScreenWidth - halfTextureWidht;
+    this.sprite.y = halfScreenHeight - halfTextureHeight;
+
+    this.game.stage.addChild(this.sprite);
+  }
+
+  update() {
+    const key = this.game.input.key;
+
+    if (key.enter.isDown) {
+      this.game.stage.destroy();
+      this.game.stage = new PIXI.Container();
+      this.game.stateManager.start('play');
+    }
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (GameWaitState);
 
 /***/ })
 /******/ ]);

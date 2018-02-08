@@ -1,0 +1,33 @@
+{
+  "map": {
+    "name": "map2",
+    "tileset": "tileset"
+  },
+
+  "next_level": false,
+
+  "entity": {
+    "player": {
+      "x": 20,
+      "y": 56,
+      "bounds": {"x": 0, "y": 56, "width": 512, "height": 456}
+    },
+
+    "mines": [
+      {
+        "name": "mine",
+        "imageUrl": "assets/mine_x2.png", 
+        "x": 10,
+        "y": 416,
+        "width": 16,
+        "height": 16,
+        "moving": true,
+        "bounds": {"x": 0, "y": 0, "width": 512, "height": 512},
+        "vel": {"x": 0.33333333, "y": 0},
+        "direction": {"x": -1, "y": 0}
+      }
+    ]
+
+  }
+
+}
