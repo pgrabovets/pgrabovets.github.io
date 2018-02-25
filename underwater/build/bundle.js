@@ -223,8 +223,8 @@ containerEl.style.height = height + 'px';
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__Input__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__StateManager__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__PlayState__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__GameOverState__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__GameWaitState__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__GameOverState__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__GameWaitState__ = __webpack_require__(14);
 
 
 
@@ -252,6 +252,7 @@ class Game extends PIXI.Application {
     this.loader.add('gameover', 'assets/gameover_x2.png');
     this.loader.add('gamewait', 'assets/gamewait_x2.png');
     this.loader.add('mine', 'assets/mine_x2.png');
+    this.loader.add('oxygen', 'assets/oxygen_x2.png');
 
     this.loader.add('map1', 'assets/map1.json');
     this.loader.add('map2', 'assets/map2.json');
@@ -396,7 +397,9 @@ class StateManager {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__Camera__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__Physics__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__Player__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__entity_Mine__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__Mine__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__OxygenPanel__ = __webpack_require__(12);
+
 
 
 
@@ -426,6 +429,8 @@ class PlayState {
     this.createTilemap();
     this.createMines();
     this.createPlayer();
+
+    this.oxygenPanel = new __WEBPACK_IMPORTED_MODULE_5__OxygenPanel__["a" /* default */](this.game);
   }
 
   getLevelData(levelName) {
@@ -464,7 +469,7 @@ class PlayState {
   createMines() {
     // create mines
     this.levelData.entity.mines.forEach((item) => {
-      const mine = new __WEBPACK_IMPORTED_MODULE_4__entity_Mine__["a" /* default */](this.game, item.name);
+      const mine = new __WEBPACK_IMPORTED_MODULE_4__Mine__["a" /* default */](this.game, item.name);
       mine.setPosition(item.x, item.y);
       mine.setBounds(
         item.bounds.x, 
@@ -506,10 +511,6 @@ class PlayState {
   update() {
     const key = this.game.input.key;
 
-    //save player position
-    const playerPosX = this.player.x;
-    const playerPosY = this.player.y;
-
     if (key.left.isDown) {
       this.player.moveLeft();
     } else if (key.right.isDown) {
@@ -520,8 +521,7 @@ class PlayState {
       this.player, 
       this.tilemap.layers['collision'],
       () => {
-        this.player.x = playerPosX;
-        this.player.y = playerPosY;
+        this.player.x = this.player.previousPos.x;
       }
     );
 
@@ -535,7 +535,7 @@ class PlayState {
       this.player, 
       this.tilemap.layers['collision'],
       () => {
-        this.player.y = playerPosY;
+        this.player.y = this.player.previousPos.y;
       }
     );
 
@@ -559,6 +559,14 @@ class PlayState {
       }
     );
 
+
+    if (this.player.y > 60) {
+      this.oxygenPanel.value -= 0.1;
+    } else if (this.player.y <= 60) {
+      this.oxygenPanel.value += 0.666;
+    }
+    
+
     if (!this.crashed) {
       this.camera.update();
       this.player.update();
@@ -566,6 +574,8 @@ class PlayState {
       this.entity.forEach((item) => {
         item.update();
       });
+
+      this.oxygenPanel.update();
     }
 
   }
@@ -753,6 +763,8 @@ class Player {
     this.width = 32;
     this.height = 22;
 
+    this.previousPos = null;
+
     this.bounds = null;
 
     //source frames
@@ -769,7 +781,11 @@ class Player {
     this.frame = 0;
     this.sprite = new PIXI.Sprite(this.textures[this.frame]);
 
-    this.vel = 2;
+    this.vel = new PIXI.Point(0, 0);
+    this.maxVel = 0.6
+    this.accel = 0.04;
+    this.friction = 0.01;
+    this.direction = new PIXI.Point(0, 0);
 
     this.body = [
       new PIXI.Rectangle(0, 4, 32, 18),
@@ -790,25 +806,74 @@ class Player {
     this.bounds = new PIXI.Rectangle(x, y, width, height);
   }
 
+  updateXPos() {
+    if (Math.abs(this.vel.x) < this.maxVel) {
+      this.vel.x += this.accel * this.direction.x;
+    }
+    this.x += this.vel.x;
+  }
+
+  updateYPos() {
+    if (Math.abs(this.vel.y) < this.maxVel) {
+      this.vel.y += this.accel * this.direction.y;
+    }
+    this.y += this.vel.y;
+  }
+
   moveLeft() {
-    this.x -= this.vel;
     this.frame = 1;
+    this.direction.x = -1;
+    this.updateXPos();
   }
 
   moveRight() {
-    this.x += this.vel;
     this.frame = 0;
+    this.direction.x = 1;
+    this.updateXPos();
   }
 
   moveUp() {
-    this.y -= this.vel;
+    this.direction.y = -1;
+    this.updateYPos();
   }
 
   moveDown() {
-    this.y += this.vel;
+    this.direction.y = 1;
+    this.updateYPos();
+  }
+
+  decelerate() {
+    if (this.vel.x > 0) {
+      this.vel.x -= this.friction;
+      if (this.vel.x < 0) {
+        this.vel.x = 0;
+      }
+    } else if (this.vel.x < 0) {
+      this.vel.x += this.friction;
+      if (this.vel.x > 0) {
+        this.vel.x = 0;
+      }
+    }
+
+    if (this.vel.y > 0) {
+      this.vel.y -= this.friction;
+      if (this.vel.y < 0) {
+        this.vel.y = 0;
+      }
+    } else if (this.vel.y < 0) {
+      this.vel.y += this.friction;
+      if (this.vel.y > 0) {
+        this.vel.y = 0;
+      }
+    }
   }
 
   update() {
+    this.decelerate();
+    this.x += this.vel.x;
+    this.y += this.vel.y;
+    
+
     if (this.bounds !== null) {
       const minX = this.bounds.x;
       const minY = this.bounds.y;
@@ -821,6 +886,12 @@ class Player {
     this.sprite.texture = this.textures[this.frame];
     this.sprite.x = this.x;
     this.sprite.y = this.y;
+
+    this.previousPos = {
+      x: this.x,
+      y: this.y
+    }
+
   }
 }
 
@@ -843,8 +914,8 @@ class Mine {
     this.moving = false;
     this.bounds = null;
     this.direction = new PIXI.Point(0, 0);
-    this.vel = new PIXI.Point(1, 0);
-    this.body = new PIXI.Rectangle(2, 2, 12, 12);
+    this.vel = new PIXI.Point(0, 0);
+    this.body = new PIXI.Rectangle(1, 1, 15, 15);
   }
 
   setBounds(x, y, width, height) {
@@ -894,6 +965,85 @@ class Mine {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+class OxygenPanel {
+  constructor(game) {
+    this.game = game;
+    this.elements = new PIXI.Container();
+    this.elements.x = 4;
+    this.elements.y = 4;
+
+    this.barPos = new PIXI.Point(50, 0);
+    this.barHeight = 10;
+    this.barWidth = 200;
+
+    this.value = this.barWidth;
+
+    this.color = 0x306230;
+    this.color2 = 0x7d9e03
+
+    this.createText();
+    this.createBarBackground();
+    this.createBar();
+
+    this.game.stage.addChild(this.elements);
+    
+  }
+
+  createText() {
+    this.oxygenText = new PIXI.Sprite.fromImage('oxygen');
+    this.oxygenText.x = 0;
+    this.oxygenText.y = 0;
+    this.elements.addChild(this.oxygenText);
+  }
+
+  createBarBackground() {
+    this.barBackground = new PIXI.Graphics();
+    this.barBackground.x = this.barPos.x;
+    this.barBackground.y = this.barPos.y;
+    this.barBackground.beginFill(this.color2);
+    this.barBackground.drawRect(0, 0, this.barWidth, this.barHeight);
+    this.barBackground.endFill();
+    this.elements.addChild(this.barBackground);
+  }
+
+  createBar() {
+    this.bar = new PIXI.Graphics();
+    this.bar.x = this.barPos.x;
+    this.bar.y = this.barPos.y;
+    this.bar.beginFill(this.color);
+    this.bar.drawRect(0, 0, this.value, this.barHeight);
+    this.bar.endFill();
+    this.elements.addChild(this.bar);
+  }
+
+  update() {
+    if (this.value > this.barWidth) {
+      this.value = this.barWidth;
+    }
+
+    if (this.value < 0) {
+      this.value = 0;
+    }
+
+    this.barBackground.clear();
+    this.barBackground.beginFill(this.color2);
+    this.barBackground.drawRect(0, 0, this.barWidth, this.barHeight);
+    this.barBackground.endFill();
+
+    this.bar.clear();
+    this.bar.beginFill(this.color);
+    this.bar.drawRect(0, 0, this.value, this.barHeight);
+    this.bar.endFill();
+  }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (OxygenPanel);
+
+/***/ }),
+/* 13 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 class GameOverState {
   constructor(game) {
     this.game = game;
@@ -925,7 +1075,7 @@ class GameOverState {
 /* harmony default export */ __webpack_exports__["a"] = (GameOverState);
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

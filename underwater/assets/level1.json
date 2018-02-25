@@ -6,7 +6,7 @@
 
   "entity": {
     "player": {
-      "x": 20,
+      "x": 180,
       "y": 56,
       "bounds": {
         "x": 0,
