@@ -143,12 +143,9 @@ class TodoList {
     itemList.sort((a, b) => {
       const date1 = a.todoDate.getTime();
       const date2 = b.todoDate.getTime();
-      if (date1 > date2) {
-        return 1;
-      } else {
-        return -1;
-      }
+      return date1 - date2;  
     });
+
     itemList.forEach((el)=> {
       this.htmlElement.appendChild(el);
     });
@@ -185,7 +182,7 @@ sortByTextButton.addEventListener('click', (e) => {
 });
 
 const sortByDateButton = document.getElementById('sortByDateBtn');
-sortByTextButton.addEventListener('click', (e) => {
+sortByDateButton.addEventListener('click', (e) => {
   todoList.sortByDate();
 });
 
