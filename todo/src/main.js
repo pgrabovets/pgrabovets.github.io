@@ -1,188 +1,461 @@
-class TodoControl {
-  constructor(todoHtmlElement) {
-    this.todoHtmlElement = todoHtmlElement;
+function  createElement(type, config) {
+  const htmlElement = document.createElement(type);
 
-    this.htmlElement = document.createElement('div');
-    this.htmlElement.className = 'todo-control';
+  if (config.className) {
+    htmlElement.className = config.className;
+  }
 
-    this.deleteButton = document.createElement('button');
-    this.deleteButton.className = 'btn btn-danger btn-sm';
-    this.deleteButton.innerHTML = 'Delete';
+  if (config.content) {
+    htmlElement.innerHTML = config.content;
+  }
 
-    this.doneButton = document.createElement('button');
-    this.doneButton.className = 'btn btn-light btn-sm mr-2';
-    this.doneButton.innerHTML = 'Done';
+  if (config.children) {
+    if (Array.isArray(config.children)) {
+      config.children.forEach((el) => {
+        htmlElement.appendChild(el);
+      });
+    } else {
+      htmlElement.appendChild(config.children);
+    }
+  }
 
-    this.htmlElement.appendChild(this.doneButton);
-    this.htmlElement.appendChild(this.deleteButton);
+  return htmlElement; 
+}
 
+
+class TodoForm {
+  constructor(config) {
+    this.config = config;
+
+    this.elem = document.getElementById(this.config.formId);
+    this.textInput = document.getElementById(this.config.textInputId);
+    this.dateInput = document.getElementById(this.config.dateInputId);
+
+    this.onAddTodo = null;
+    
     this.addListeners();
   }
 
   addListeners() {
-    this.doneButton.addEventListener('click', (e) => {
-      this.handleDone();
-    });
-
-    this.deleteButton.addEventListener('click', (e) => {
-      this.removeTodoElement();
-    });
+    this.textInput.addEventListener('keyup', this.handleTextChange.bind(this));
+    this.dateInput.addEventListener('change', this.handleDateChange.bind(this));
+    this.elem.addEventListener('submit', this.handleAddTodo.bind(this));
   }
 
-  removeTodoElement() {
-    this.todoHtmlElement.remove();
+  handleAddTodo(e) {
+    e.preventDefault();
+
+    if (this.isInputsNotEmpty()) {
+      const text = this.getText();
+      const date = this.getDate();
+      this.onAddTodo(text, date);
+     
+    } else {
+      if (!this.textInput.value) {
+        this.textInput.classList.add('is-invalid');
+      }
+
+      if (!this.dateInput.valueAsDate) {
+        this.dateInput.classList.add('is-invalid');
+      }
+    }
+    
   }
 
-  handleDone() {
-    const text = this.todoHtmlElement.getElementsByTagName('span')[0];
-    const date = this.todoHtmlElement.getElementsByTagName('span')[1];
-    text.className = 'todo-done text-muted';
-    date.className = 'todo-done text-muted';
-    this.doneButton.setAttribute('disabled', true);
+  handleTextChange(e) {
+    this.textInput.classList.remove('is-invalid');
   }
+
+  handleDateChange(e) {
+    this.dateInput.classList.remove('is-invalid');
+  }
+
+  getText() {
+    return this.textInput.value;
+  }
+
+  getDate() {
+    return this.dateInput.valueAsDate;
+  }
+
+  isInputsNotEmpty() {
+    return this.textInput.value && this.dateInput.valueAsDate;
+  }
+
 }
 
 
 class TodoItem {
   constructor(text, date) {
-    this.todoText = text;
-    this.todoDate = date;
-    this.htmlElement = document.createElement('li');
-    this.htmlElement.className = 'list-group-item d-flex justify-content-between align-items-center';
+    const textElem =  createElement('span', {
+      className: 'todo-content',
+      content: text
+    });
 
-    this.htmlElement.todoDate = this.todoDate;
-    this.htmlElement.todoText = this.todoText;
+    const dateElem =  createElement('span', {
+      className: 'todo-content',
+      content: ' (' + date.toDateString() + ')'
+    });
 
-    const dateElement = document.createElement('span');
-    dateElement.innerHTML = ' (' + this.todoDate.toDateString() + ')';
+    this.todoContent = createElement('div', {
+      className: 'todo-content',
+      children: [textElem, dateElem]
+    });
 
-    const textElement = document.createElement('span');
-    textElement.innerHTML = this.todoText;
+    this.deleteButton = createElement('button', {
+      className: 'btn btn-danger btn-sm',
+      content: 'Delete'
+    });
 
-    this.htmlElement.appendChild(textElement);
-    this.htmlElement.appendChild(dateElement);
+    this.doneButton = createElement('button', {
+      className: 'btn btn-light btn-sm mr-2',
+      content: 'Done'
+    });
 
-    const todoControl = new TodoControl(this.htmlElement);
-    this.htmlElement.appendChild(todoControl.htmlElement);
+    this.todoControl = createElement('div', {
+      className: 'todo-control',
+      children: [this.doneButton, this.deleteButton]
+    });
+
+    this.elem = createElement('li', {
+      className: 'list-group-item d-flex justify-content-between align-items-center',
+      children: [this.todoContent, this.todoControl]
+    });
+
+    this.onDelete = null;
+    this.onDone = null;
+    this.isDone = false;
+    this.addListeners();
+  }
+
+  addListeners() {
+    this.deleteButton.addEventListener('click', this.handleDelete.bind(this));
+    this.doneButton.addEventListener('click', this.handleDone.bind(this));
+  }
+
+  handleDelete() {
+    if (this.onDelete) {
+      this.onDelete(this.elem);
+    } else {
+      console.log('onDelete is not defined');
+    }
+    
+  }
+
+  handleDone() {
+    this.todoContent.classList.toggle('todo-done');
+    this.todoContent.classList.toggle('text-muted');
+    
+    if (this.isDone) {
+      this.isDone = false;
+      this.doneButton.innerHTML = 'Done';
+    } else {
+      this.isDone = true;
+      this.doneButton.innerHTML = 'Cancel';
+    }
+
+    if (this.onDone) {
+      this.onDone();
+    }
   }
 }
 
 
 class TodoList {
-  constructor() {
-    this.htmlElementId = 'todoList'
-    this.htmlElement = document.getElementById(this.htmlElementId);
+  constructor(htmlElementId) {
+    this.elem = document.getElementById(htmlElementId);
+    this.children = [];
+
+    this.onEmpty = null;
   }
 
   addTodo(text, date) {
     const todoItem = new TodoItem(text, date);
-    this.htmlElement.appendChild(todoItem.htmlElement);
+    todoItem.onDelete = this.deleteTodo.bind(this);
+
+    todoItem.elem.key = Date.now();
+    todoItem.elem.todoText = text;
+    todoItem.elem.todoDate = date;
+
+    this.children.push(todoItem.elem);
+    
+    this.update();
+  }
+
+  deleteTodo(elem) {
+    this.children = this.children.filter((item) => {
+      return item.key !== elem.key;
+    });
+
+    elem.remove();
+
+    if (this.children.length == 0) {
+      this.onEmpty();
+    }
+  }
+
+  update() {
+    this.children.forEach((el) => {
+      this.elem.appendChild(el);
+    });
+  }
+
+  showAllTodos() {
+    const todoElements = this.elem.children;
+    for (var i = 0; i < todoElements.length; i++) {
+      const li = todoElements[i];
+      li.classList.remove('d-none');
+      li.classList.add('d-flex');
+    }
+  }
+
+  showByDate(searchDate) {
+    const todoElements = this.elem.children;
+    for (var i = 0; i < todoElements.length; i++) {
+      const li = todoElements[i];
+
+      const todoDate = li.todoDate.getTime();
+      const selectedDate = searchDate.getTime();
+
+      if (todoDate !== selectedDate) {
+        li.classList.remove('d-flex');
+        li.classList.add('d-none');
+      } else {
+        li.classList.remove('d-none');
+        li.classList.add('d-flex');
+      }
+    }
+
   }
 
   showMatched(searchText) {
-    const itemList = this.htmlElement.children;
-    for (var i = 0; i < itemList.length; i++) {
-      const li = itemList[i];
-      const todoText = li.getElementsByTagName('span')[0].innerHTML.toLowerCase();
+    const todoElements = this.elem.children;
+
+    for (var i = 0; i < todoElements.length; i++) {
+      const li = todoElements[i];
+      const todoText = li.todoText.toLowerCase();
 
       if (todoText.indexOf(searchText) === -1) {
-        itemList[i].classList.remove('d-flex');
-        itemList[i].classList.add('d-none');
+        li.classList.remove('d-flex');
+        li.classList.add('d-none');
       } else {
-        itemList[i].classList.remove('d-none');
-        itemList[i].classList.add('d-flex');
+        li.classList.remove('d-none');
+        li.classList.add('d-flex');
       }
     }
   }
 
-  showTodosdByDate(date) {
-    const itemList = this.htmlElement.children;
-    for (var i = 0; i < itemList.length; i++) {
-      const li = itemList[i];
-
-      const todoDate = li.todoDate.getTime();
-      const selectedDate = date.getTime()
-
-      if (todoDate !== selectedDate) {
-        itemList[i].classList.remove('d-flex');
-        itemList[i].classList.add('d-none');
-      } else {
-        itemList[i].classList.remove('d-none');
-        itemList[i].classList.add('d-flex');
-      }
-    }
-  }
-
-  sortByText() {
-    let itemList = [];
-    for (var i = 0; i < this.htmlElement.children.length; i++) {
-      itemList.push(this.htmlElement.children[i]);
+  sortByText(direction) {
+    const todoList = [];
+    for (let i = 0; i < this.elem.children.length; i++) {
+      todoList.push(this.elem.children[i]);
     }
 
-    itemList.sort((a, b) => {
-      const text1 = a.getElementsByTagName('span')[0].innerHTML;
-      const text2 = b.getElementsByTagName('span')[0].innerHTML;
-      if (text1 > text2) {
+    todoList.sort((a, b) => {
+      const compare = direction ? a.todoText > b.todoText : a.todoText < b.todoText;
+
+      if (compare) {
         return 1;
       } else {
         return -1;
       }
     });
 
-    itemList.forEach((el)=> {
-      this.htmlElement.appendChild(el);
+    todoList.forEach((el)=> {
+      this.elem.appendChild(el);
     });
   }
 
-  sortByDate() {
-    let itemList = [];
-    for (var i = 0; i < this.htmlElement.children.length; i++) {
-      itemList.push(this.htmlElement.children[i]);
+  sortByDate(direction) {
+    const todoList = [];
+    for (let i = 0; i < this.elem.children.length; i++) {
+      todoList.push(this.elem.children[i]);
     }
 
-    itemList.sort((a, b) => {
+    todoList.sort((a, b) => {
       const date1 = a.todoDate.getTime();
       const date2 = b.todoDate.getTime();
-      return date1 - date2;  
+
+      if (direction) {
+        return date1 - date2;
+      } else {
+        return date2 - date1;
+      }
+
     });
 
-    itemList.forEach((el)=> {
-      this.htmlElement.appendChild(el);
+    todoList.forEach((el)=> {
+      this.elem.appendChild(el);
     });
+  }
 
+}
+
+
+class SearchForm {
+  constructor(config) {
+    this.config = config;
+    this.textInput = document.getElementById(this.config.searchTextId); 
+    this.dateInput = document.getElementById(this.config.searchDateId);
+
+    this.onTextChange = null;
+    this.onDateChange = null;
+    this.onDateClear = null;
+
+    this.addListeners();
+  }
+
+  addListeners() {
+    this.textInput.addEventListener('keyup', this.handleTextChange.bind(this));
+    this.dateInput.addEventListener('change', this.handleDateChange.bind(this));
+  }
+
+  getText() {
+    return this.textInput.value;
+  }
+
+  getDate() {
+    return this.dateInput.valueAsDate;
+  }
+
+  handleTextChange(e) {
+    if (this.onTextChange) {
+      this.onTextChange(this.textInput.value);
+    }
+  }
+
+  handleDateChange(e) {
+    if (this.onDateChange) {
+      if (this.dateInput.valueAsDate) {
+        this.onDateChange(this.dateInput.valueAsDate);
+      } else {
+        this.onDateClear();
+      }
+    }
   }
 }
 
-const todoList = new TodoList();
+
+class SortButton {
+  constructor(htmlElementId) {
+    this.elem = document.getElementById(htmlElementId);
+    this.onClick = null;
+    this.isDir = true;
+
+    this.elem.addEventListener('click', () => {
+      this.onClick(this.isDir);
+    });
+  }
+
+  addDropElement() {
+    if (!this.isDir) {
+      this.elem.classList.remove('btn-dropup');
+      this.elem.classList.add('btn-dropdown');
+    } else {
+      this.elem.classList.remove('btn-dropdown');
+      this.elem.classList.add('btn-dropup');
+    }
+  }
+
+  removeDropElement() {
+    this.elem.classList.remove('btn-dropdown');
+    this.elem.classList.remove('btn-dropup');
+    this.isDir = true;
+  }
+
+  toggleDirection() {
+    this.isDir = !this.isDir;
+    this.addDropElement();
+  }
+
+  hide() {
+    this.elem.classList.add('d-none');
+    this.removeDropElement();
+  }
+
+  show() {
+    this.elem.classList.remove('d-none');
+  }
+}
 
 
-const addTodoFormElement = document.getElementById('addTodoForm');
-addTodoFormElement.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const text = e.target.elements['todoText'].value;
-  const date = e.target.elements['todoDate'].valueAsDate;
+class Button {
+  constructor(htmlElementId) {
+    this.elem = document.getElementById(htmlElementId);
+    this.onClick = null;
+    this.elem.addEventListener('click', () => {
+      this.onClick(this.isDir);
+    });
+  }
 
+  hide() {
+    this.elem.classList.add('d-none');
+  }
+
+  show() {
+    this.elem.classList.remove('d-none');
+  }
+}
+
+
+const sortTextBtn = new SortButton('sortByTextBtn');
+const sortDatetBtn = new SortButton('sortByDateBtn');
+const unsortedBtn = new Button('unsortedBtn');
+
+const todoForm = new TodoForm({
+  formId: 'addTodoForm',
+  textInputId: 'todoText',
+  dateInputId: 'todoDate'
+});
+
+const todoList = new TodoList('todoList');
+
+todoList.onEmpty = () => {
+  sortTextBtn.hide();
+  sortDatetBtn.hide();
+  unsortedBtn.hide();
+};
+
+todoForm.onAddTodo = (text, date) => {
   todoList.addTodo(text, date);
+  sortTextBtn.show();
+  sortDatetBtn.show();
+  unsortedBtn.show();
+};
+
+sortTextBtn.onClick = (isDir) => {
+  todoList.sortByText(isDir);
+  sortTextBtn.toggleDirection();
+  sortDatetBtn.removeDropElement();
+};
+
+sortDatetBtn.onClick = (isDir) => {
+  todoList.sortByDate(isDir);
+  sortDatetBtn.toggleDirection();
+  sortTextBtn.removeDropElement();
+};
+
+unsortedBtn.onClick = () => {
+  todoList.update();
+  sortDatetBtn.removeDropElement();
+  sortTextBtn.removeDropElement();
+};
+
+const searchForm = new SearchForm({
+  searchTextId: 'searchText',
+  searchDateId: 'searchDate'
 });
 
-const searchField = document.getElementById('searchField');
-searchField.addEventListener('keyup', (e) => {
-  todoList.showMatched(searchField.value);
-});
+searchForm.onTextChange = (searchText) => {
+  todoList.showMatched(searchText);
+};
 
-const searchByDate = document.getElementById('searchByDate');
-searchByDate.addEventListener('change', (e) => {
-  todoList.showTodosdByDate(e.target.valueAsDate);
-});
+searchForm.onDateChange = (searchDate) => {
+  todoList.showByDate(searchDate);
+};
 
+searchForm.onDateClear = () => {
+  todoList.showAllTodos();
+};
 
-const sortByTextButton = document.getElementById('sortByTextBtn');
-sortByTextButton.addEventListener('click', (e) => {
-  todoList.sortByText();
-});
-
-const sortByDateButton = document.getElementById('sortByDateBtn');
-sortByDateButton.addEventListener('click', (e) => {
-  todoList.sortByDate();
-});
 
