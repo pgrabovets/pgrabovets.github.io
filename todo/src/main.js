@@ -42,6 +42,11 @@ class TodoForm {
     this.elem.addEventListener('submit', this.handleAddTodo.bind(this));
   }
 
+  clearInputs() {
+    this.textInput.value = null;
+    this.dateInput.value = null;
+  }
+
   handleAddTodo(e) {
     e.preventDefault();
 
@@ -49,6 +54,7 @@ class TodoForm {
       const text = this.getText();
       const date = this.getDate();
       this.onAddTodo(text, date);
+      this.clearInputs();
      
     } else {
       if (!this.textInput.value) {
@@ -86,7 +92,7 @@ class TodoForm {
 
 
 class TodoItem {
-  constructor(text, date) {
+  constructor(text, date, isDone = false) {
     const textElem =  createElement('span', {
       className: 'todo-content',
       content: text
@@ -124,7 +130,15 @@ class TodoItem {
 
     this.onDelete = null;
     this.onDone = null;
-    this.isDone = false;
+
+    this.elem.isDone = isDone;
+
+    if (this.elem.isDone) {
+      this.todoContent.classList.add('todo-done');
+      this.todoContent.classList.add('text-muted');
+      this.doneButton.innerHTML = 'Cancel';
+    }
+
     this.addListeners();
   }
 
@@ -146,16 +160,16 @@ class TodoItem {
     this.todoContent.classList.toggle('todo-done');
     this.todoContent.classList.toggle('text-muted');
     
-    if (this.isDone) {
-      this.isDone = false;
+    if (this.elem.isDone) {
+      this.elem.isDone = false;
       this.doneButton.innerHTML = 'Done';
     } else {
-      this.isDone = true;
+      this.elem.isDone = true;
       this.doneButton.innerHTML = 'Cancel';
     }
 
     if (this.onDone) {
-      this.onDone();
+      this.onDone(this.elem);
     }
   }
 }
@@ -169,8 +183,41 @@ class TodoList {
     this.onEmpty = null;
   }
 
-  addTodo(text, date) {
-    const todoItem = new TodoItem(text, date);
+  saveToStorage() {
+    const todos = [];
+    this.children.forEach((el)=> {
+      todos.push({
+        text: el.todoText,
+        date: el.todoDate,
+        isDone: el.isDone
+      });
+    });
+
+    localStorage.todos = JSON.stringify(todos);
+  }
+  
+
+  restoreFromStorage() {
+    if(!localStorage.todos) return;
+
+    const parsed = JSON.parse(localStorage.todos, (key, value) => {
+      if (key == 'date') {
+        return new Date(value);
+      } else if (key == 'isDone') {
+        return Boolean(value);
+      } else {
+        return value;
+      }
+    });
+
+    parsed.forEach((el) => {
+      this.addTodo(el.text, el.date, el.isDone);
+    });
+
+  }
+
+  addTodo(text, date, isDone) {
+    const todoItem = new TodoItem(text, date, isDone);
     todoItem.onDelete = this.deleteTodo.bind(this);
 
     todoItem.elem.key = Date.now();
@@ -180,6 +227,7 @@ class TodoList {
     this.children.push(todoItem.elem);
     
     this.update();
+    this.showAllTodos();
   }
 
   deleteTodo(elem) {
@@ -245,6 +293,35 @@ class TodoList {
     }
   }
 
+  showByTextAndDate(searchText, searchDate) {
+    const todoElements = this.elem.children;
+
+    for (var i = 0; i < todoElements.length; i++) {
+      const li = todoElements[i];
+
+      const todoDate = li.todoDate.getTime();
+      const todoText = li.todoText.toLowerCase();
+
+      li.classList.remove('d-none');
+      li.classList.add('d-flex');
+
+      if (searchText) {
+        if (todoText.indexOf(searchText) === -1) {
+          li.classList.remove('d-flex');
+          li.classList.add('d-none');
+        }
+      }
+
+      if (searchDate) {
+        if (todoDate !== searchDate.getTime()) {
+          li.classList.remove('d-flex');
+          li.classList.add('d-none');
+        } 
+      }
+
+    }
+  }
+
   sortByText(direction) {
     const todoList = [];
     for (let i = 0; i < this.elem.children.length; i++) {
@@ -300,7 +377,7 @@ class SearchForm {
 
     this.onTextChange = null;
     this.onDateChange = null;
-    this.onDateClear = null;
+    this.onChange = null;
 
     this.addListeners();
   }
@@ -308,6 +385,11 @@ class SearchForm {
   addListeners() {
     this.textInput.addEventListener('keyup', this.handleTextChange.bind(this));
     this.dateInput.addEventListener('change', this.handleDateChange.bind(this));
+  }
+
+  clearInputs() {
+    this.textInput.value = null;
+    this.dateInput.value = null;
   }
 
   getText() {
@@ -322,15 +404,21 @@ class SearchForm {
     if (this.onTextChange) {
       this.onTextChange(this.textInput.value);
     }
+
+    if (this.onChange) {
+      this.onChange(this.getText(), this.getDate());
+    }
   }
 
   handleDateChange(e) {
     if (this.onDateChange) {
       if (this.dateInput.valueAsDate) {
         this.onDateChange(this.dateInput.valueAsDate);
-      } else {
-        this.onDateClear();
       }
+    }
+
+    if (this.onChange) {
+      this.onChange(this.getText(), this.getDate());
     }
   }
 }
@@ -416,13 +504,6 @@ todoList.onEmpty = () => {
   unsortedBtn.hide();
 };
 
-todoForm.onAddTodo = (text, date) => {
-  todoList.addTodo(text, date);
-  sortTextBtn.show();
-  sortDatetBtn.show();
-  unsortedBtn.show();
-};
-
 sortTextBtn.onClick = (isDir) => {
   todoList.sortByText(isDir);
   sortTextBtn.toggleDirection();
@@ -446,16 +527,23 @@ const searchForm = new SearchForm({
   searchDateId: 'searchDate'
 });
 
-searchForm.onTextChange = (searchText) => {
-  todoList.showMatched(searchText);
+searchForm.onChange = (text, date) => {
+  todoList.showByTextAndDate(text, date);
+}
+
+
+todoForm.onAddTodo = (text, date) => {
+  todoList.addTodo(text, date);
+  sortTextBtn.show();
+  sortDatetBtn.show();
+  unsortedBtn.show();
+  searchForm.clearInputs();
 };
 
-searchForm.onDateChange = (searchDate) => {
-  todoList.showByDate(searchDate);
-};
+window.addEventListener('load', () => {
+  todoList.restoreFromStorage();
+});
 
-searchForm.onDateClear = () => {
-  todoList.showAllTodos();
-};
-
-
+window.addEventListener('unload', () => {
+  todoList.saveToStorage();
+});
