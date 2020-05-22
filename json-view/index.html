@@ -4,22 +4,25 @@
 	<title>JSON VIEW</title>
 	<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="jsonview.css">
-  <script type="text/javascript" src="jsonview.js"></script>
 </head>
 <body>
   <div class="root"></div>
 
+  <script type="text/javascript" src="jsonview.js"></script>
   <script type="text/javascript">
-    fetch('example.json')
+    fetch('example2.json')
     .then((res)=> {
       return res.text();
     })
     .then((data) => {
-      jsonView.format(data, '.root');
+      const tree = JsonView.createTree(data);
+      JsonView.render(tree, document.querySelector('.root'));
+      JsonView.expandChildren(tree);
     })
     .catch((err) => {
       console.log(err);
     })
+
   </script>
 </body>
 </html>
