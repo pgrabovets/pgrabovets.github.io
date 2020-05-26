@@ -21,7 +21,7 @@ var JsonView = (function (exports) {
     var params = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
     var key = params.key,
         size = params.size;
-    return "\n    <div class=\"line\">\n      <div class=\"caret-icon\">\n        <i class=\"fas fa-caret-right\"></i>\n      </div>\n      <div class=\"json-key\">".concat(key, "</div>\n      <div class=\"json-size\">").concat(size, "</div>\n    </div>\n  ");
+    return "\n    <div class=\"line\">\n      <div class=\"caret-icon\"><i class=\"fas fa-caret-right\"></i></div>\n      <div class=\"json-key\">".concat(key, "</div>\n      <div class=\"json-size\">").concat(size, "</div>\n    </div>\n  ");
   }
 
   function notExpandedTemplate() {
@@ -55,14 +55,20 @@ var JsonView = (function (exports) {
   function setCaretIconDown(node) {
     if (node.children.length > 0) {
       var icon = node.el.querySelector('.fas');
-      icon && icon.classList.replace('fa-caret-right', 'fa-caret-down');
+
+      if (icon) {
+        icon.classList.replace('fa-caret-right', 'fa-caret-down');
+      }
     }
   }
 
   function setCaretIconRight(node) {
     if (node.children.length > 0) {
       var icon = node.el.querySelector('.fas');
-      icon && icon.classList.replace('fa-caret-down', 'fa-caret-right');
+
+      if (icon) {
+        icon.classList.replace('fa-caret-down', 'fa-caret-right');
+      }
     }
   }
 
@@ -76,6 +82,12 @@ var JsonView = (function (exports) {
       setCaretIconDown(node);
       showNodeChildren(node);
     }
+  }
+
+  function createContainerElement() {
+    var el = document.createElement('div');
+    el.className = 'json-container';
+    return el;
   }
 
   function createNodeElement(node) {
@@ -138,13 +150,12 @@ var JsonView = (function (exports) {
     return {
       key: opt.key || null,
       parent: opt.parent || null,
-      value: opt.value || null,
+      value: opt.hasOwnProperty('value') ? opt.value : null,
       isExpanded: opt.isExpanded || false,
       type: opt.type || null,
       children: opt.children || [],
       el: opt.el || null,
-      depth: opt.depth || 0,
-      name: opt.name || null
+      depth: opt.depth || 0
     };
   }
 
@@ -183,10 +194,12 @@ var JsonView = (function (exports) {
   }
 
   function render(tree, targetElement) {
+    var containerEl = createContainerElement();
     traverseTree(tree, function (node) {
       node.el = createNodeElement(node);
-      targetElement.appendChild(node.el);
+      containerEl.appendChild(node.el);
     });
+    targetElement.appendChild(containerEl);
   }
 
   function expandChildren(node) {
