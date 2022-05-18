@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+.game-title {
+  font-size: 2em;
+  text-align: center;
+  margin: 22px 32px;
+  color: rgba(0,0,0,.8);
+}
+
+.board {
+  display: grid;
+  grid-template-columns: 80px 80px 80px;
+  grid-gap: 16px;
+  justify-content: center;
+  margin-bottom: 2em;
+}
+
+.tile {
+  border: solid 1px rgba(0,0,0,.1);
+  font-size: 28px;
+  border-radius: 4px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow : 0 4px 6px -1px rgb(0 0 0/0.1),0 2px 4px -2px rgb(0 0 0/0.1);
+  cursor: pointer;
+}
+
+.center {
+  text-align: center;
+}
+
+.hidden {
+  display: none;
+}
+
+.message {
+  font-size: 1em;
+  margin-bottom: 1em;
+}
+
+.btn {
+  font-weight: 500;
+  font-size: 1em;
+  color: rgb(0, 0, 0, 0.8);
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: 6px;
+  border-width: 1px;
+  border-color: rgba(0, 0, 0, .3);
+  padding: 0.4em 1em;
+  margin: 0 .4em;
+}
+
+.btn:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+}
