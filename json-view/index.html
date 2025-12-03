@@ -1,16 +1,13 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <link href="jsonview.css" rel="stylesheet" />
     <title>jsonview demo</title>
-    <link
-      href="https://fonts.googleapis.com/css?family=Open+Sans"
-      rel="stylesheet"
-    />
   </head>
   <body>
     <div class="root"></div>
 
-    <script type="text/javascript" src="jsonview.js"></script>
+    <script type="text/javascript" src="jsonview.umd.cjs"></script>
     <script type="text/javascript">
       fetch("example2.json")
         .then((res) => {
@@ -18,7 +15,7 @@
         })
         .then((data) => {
           const tree = jsonview.create(data);
-          jsonview.render(tree, document.querySelector(".root"));
+          jsonview.render(tree, document.querySelector("#root"));
           jsonview.expand(tree);
         })
         .catch((err) => {
